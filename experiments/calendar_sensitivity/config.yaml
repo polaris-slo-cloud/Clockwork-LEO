@@ -1,0 +1,16 @@
+# Sensitivity of the calendar planner to temporal resolution and pool slack.
+# (1) pool slack: how many candidate states the pool holds.
+# (2) temporal resolution: whether cost and reprovisions converge as the
+#     cycle grid is refined, and how much attainment drops at 1s replay.
+seed: 0
+provider: mvp-main
+aoi: {name: main, lat: 48.21, lon: 16.37}
+slo_ms: 300
+fleet_seed: 0
+switch_cost: 5
+slacks: [0, 2, 5, 10]
+n_steps_slack: 1440
+n_steps_list: [288, 479, 720, 1440, 2880, 8616]
+slack_steps: 5
+replay_1s: true
+workers: 4

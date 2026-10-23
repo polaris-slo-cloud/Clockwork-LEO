@@ -1,0 +1,66 @@
+# yolo_coco.yaml — YOLOv8 detection variant ladder with per-device measured
+# latency profiles. Latency profiles are first-class input data, symmetric
+# with accuracy profiles; the roofline survives only as the fallback for
+# devices without published measurements.
+#
+# Accuracy (map): published Ultralytics YOLOv8 COCO val mAP50-95
+# (docs.ultralytics.com). Stands in for a fire-specific ladder; kept
+# afterwards as a sensitivity alternative. gflops_per_image is FLOPs (not
+# MACs) for one 640x640 forward pass, used ONLY by the roofline fallback.
+#
+# latency.<device> keys match constants.yaml device names. Sources:
+#   iX10 (Hailo-8 accelerator): Hailo Model Zoo public benchmark table for
+#     HAILO8 object detection (github.com/hailo-ai/hailo_model_zoo),
+#     four-lane PCIe. fps_batch1 is the conservative default the loader uses;
+#     fps_batch8 kept for sensitivity. map_on_device is the Hailo quantized
+#     (INT8 "hardware") mAP from the same table.
+#   H100: Ultralytics-published A100 TensorRT FP16 per-image latency (COCO val,
+#     EC2 P4d), used as a CONSERVATIVE stand-in for the on-orbit H100 (A100 is
+#     strictly slower). Disclosed in prose.
+#   OrinNano (MEASURED): Jetson Orin Nano Super, batch-1 FP16 PyTorch, 640px,
+#     30 iters median, GPU otherwise idle. yolov8x deliberately absent (RAM
+#     guard fired) -> roofline fallback. PyTorch runtime disclosed; TensorRT
+#     would be faster, so these entries are conservative. Raw log:
+#     ladders/provenance/.
+#   Orin (AGX): no published YOLOv8 table; entry absent -> roofline fallback.
+#   RAD5545, SBC-2A72: no published detector benchmarks for space-grade CPUs;
+#     roofline fallback by design.
+name: yolo_coco
+provenance: spec
+source: "Ultralytics YOLOv8 model card (accuracy, A100 latency); Hailo Model Zoo HAILO8 table (iX10 latency + quantized mAP)"
+metric: coco_map_50_95
+variants:
+  - name: YOLOv8n
+    gflops_per_image: 8.7
+    map: 37.3
+    latency:
+      iX10: {fps_batch1: 1036.0, fps_batch8: 1036.0, map_on_device: 36.4, prov: spec, source: hailo-model-zoo}
+      OrinNano: {ms_per_image: 25.799, prov: measured, source: orin-nano-fp16-pytorch}
+      H100: {ms_per_image: 0.99, prov: spec, source: ultralytics-a100-conservative}
+  - name: YOLOv8s
+    gflops_per_image: 28.6
+    map: 44.9
+    latency:
+      iX10: {fps_batch1: 491.0, fps_batch8: 491.0, map_on_device: 43.9, prov: spec, source: hailo-model-zoo}
+      OrinNano: {ms_per_image: 26.633, prov: measured, source: orin-nano-fp16-pytorch}
+      H100: {ms_per_image: 1.20, prov: spec, source: ultralytics-a100-conservative}
+  - name: YOLOv8m
+    gflops_per_image: 78.9
+    map: 50.2
+    latency:
+      iX10: {fps_batch1: 66.9, fps_batch8: 149.0, map_on_device: 49.2, prov: spec, source: hailo-model-zoo}
+      OrinNano: {ms_per_image: 35.349, prov: measured, source: orin-nano-fp16-pytorch}
+      H100: {ms_per_image: 1.83, prov: spec, source: ultralytics-a100-conservative}
+  - name: YOLOv8l
+    gflops_per_image: 165.2
+    map: 52.9
+    latency:
+      iX10: {fps_batch1: 36.2, fps_batch8: 64.5, map_on_device: 51.8, prov: spec, source: hailo-model-zoo}
+      OrinNano: {ms_per_image: 49.609, prov: measured, source: orin-nano-fp16-pytorch}
+      H100: {ms_per_image: 2.39, prov: spec, source: ultralytics-a100-conservative}
+  - name: YOLOv8x
+    gflops_per_image: 257.8
+    map: 53.9
+    latency:
+      iX10: {fps_batch1: 24.6, fps_batch8: 40.6, map_on_device: 52.9, prov: spec, source: hailo-model-zoo}
+      H100: {ms_per_image: 3.53, prov: spec, source: ultralytics-a100-conservative}
